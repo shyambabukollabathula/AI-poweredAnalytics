@@ -15,60 +15,69 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NavigationPage } from "@/components/navigation/navigation-handler";
+import toast from 'react-hot-toast';
 
 interface SidebarProps {
   className?: string;
+  currentPage?: NavigationPage;
+  onPageChange?: (page: NavigationPage) => void;
 }
 
 const navigation = [
   {
     name: "Overview",
-    href: "/",
+    page: "overview" as NavigationPage,
     icon: Home,
-    current: true,
+    badge: null,
   },
   {
     name: "Analytics",
-    href: "/analytics",
+    page: "analytics" as NavigationPage,
     icon: BarChart3,
-    current: false,
     badge: "New",
   },
   {
     name: "Campaigns",
-    href: "/campaigns",
+    page: "campaigns" as NavigationPage,
     icon: Target,
-    current: false,
+    badge: null,
   },
   {
     name: "Audience",
-    href: "/audience",
+    page: "audience" as NavigationPage,
     icon: Users,
-    current: false,
+    badge: null,
   },
   {
     name: "Performance",
-    href: "/performance",
+    page: "performance" as NavigationPage,
     icon: TrendingUp,
-    current: false,
+    badge: null,
   },
 ];
 
 const secondaryNavigation = [
   {
     name: "Settings",
-    href: "/settings",
+    page: "settings" as NavigationPage,
     icon: Settings,
   },
   {
     name: "Help",
-    href: "/help",
+    page: "help" as NavigationPage,
     icon: HelpCircle,
   },
 ];
 
-export function Sidebar({ className }: SidebarProps) {
+export function Sidebar({ className, currentPage = 'overview', onPageChange }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+
+  const handleNavigation = (page: NavigationPage, name: string) => {
+    if (onPageChange) {
+      onPageChange(page);
+    }
+  };
 
   return (
     <div
@@ -99,29 +108,28 @@ export function Sidebar({ className }: SidebarProps) {
         <div className="space-y-1">
           {navigation.map((item) => {
             const Icon = item.icon;
+            const isActive = currentPage === item.page;
             return (
               <Button
                 key={item.name}
-                variant={item.current ? "secondary" : "ghost"}
+                variant={isActive ? "secondary" : "ghost"}
                 className={cn(
                   "w-full justify-start",
                   collapsed && "justify-center px-2"
                 )}
-                asChild
+                onClick={() => handleNavigation(item.page, item.name)}
               >
-                <a href={item.href}>
-                  <Icon className={cn("h-4 w-4", !collapsed && "mr-3")} />
-                  {!collapsed && (
-                    <>
-                      <span>{item.name}</span>
-                      {item.badge && (
-                        <Badge variant="secondary" className="ml-auto">
-                          {item.badge}
-                        </Badge>
-                      )}
-                    </>
-                  )}
-                </a>
+                <Icon className={cn("h-4 w-4", !collapsed && "mr-3")} />
+                {!collapsed && (
+                  <>
+                    <span>{item.name}</span>
+                    {item.badge && (
+                      <Badge variant="secondary" className="ml-auto">
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </>
+                )}
               </Button>
             );
           })}
@@ -134,20 +142,19 @@ export function Sidebar({ className }: SidebarProps) {
         <div className="space-y-1">
           {secondaryNavigation.map((item) => {
             const Icon = item.icon;
+            const isActive = currentPage === item.page;
             return (
               <Button
                 key={item.name}
-                variant="ghost"
+                variant={isActive ? "secondary" : "ghost"}
                 className={cn(
                   "w-full justify-start",
                   collapsed && "justify-center px-2"
                 )}
-                asChild
+                onClick={() => handleNavigation(item.page, item.name)}
               >
-                <a href={item.href}>
-                  <Icon className={cn("h-4 w-4", !collapsed && "mr-3")} />
-                  {!collapsed && <span>{item.name}</span>}
-                </a>
+                <Icon className={cn("h-4 w-4", !collapsed && "mr-3")} />
+                {!collapsed && <span>{item.name}</span>}
               </Button>
             );
           })}

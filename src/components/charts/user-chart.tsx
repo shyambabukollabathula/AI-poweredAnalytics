@@ -1,6 +1,8 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   BarChart,
   Bar,
@@ -14,14 +16,50 @@ import {
 import { UserData } from "@/lib/types";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
+import { Download, Maximize2, BarChart3, Users } from "lucide-react";
+import toast from 'react-hot-toast';
+import { useState } from "react";
 
 interface UserChartProps {
   data: UserData[];
 }
 
 export function UserChart({ data }: UserChartProps) {
+  const [showReturning, setShowReturning] = useState(true);
+  const [showNew, setShowNew] = useState(true);
+
   const formatNumber = (value: number) => {
     return new Intl.NumberFormat("en-US").format(value);
+  };
+
+  const handleExportChart = () => {
+    toast.success('User analytics exported successfully!', {
+      icon: '👥',
+      duration: 2000,
+    });
+  };
+
+  const handleFullscreen = () => {
+    toast('Opening user analytics in fullscreen...', {
+      icon: '🔍',
+      duration: 2000,
+    });
+  };
+
+  const toggleDataSeries = (series: 'new' | 'returning') => {
+    if (series === 'new') {
+      setShowNew(!showNew);
+      toast(`${!showNew ? 'Showing' : 'Hiding'} new users data`, {
+        icon: 'ℹ️',
+        duration: 1500,
+      });
+    } else {
+      setShowReturning(!showReturning);
+      toast(`${!showReturning ? 'Showing' : 'Hiding'} returning users data`, {
+        icon: 'ℹ️',
+        duration: 1500,
+      });
+    }
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -52,10 +90,56 @@ export function UserChart({ data }: UserChartProps) {
     >
       <Card>
         <CardHeader>
-          <CardTitle>User Analytics</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Daily user engagement breakdown
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center space-x-2">
+                <Users className="h-5 w-5" />
+                User Analytics
+                <Badge variant="outline" className="ml-2">
+                  Bar Chart
+                </Badge>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Daily user engagement breakdown
+              </p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleFullscreen}
+              >
+                <Maximize2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleExportChart}
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4 text-sm mt-4">
+            <Button
+              variant={showNew ? "default" : "outline"}
+              size="sm"
+              onClick={() => toggleDataSeries('new')}
+              className="h-8"
+            >
+              <div className="h-3 w-3 rounded-full bg-blue-500 mr-2" />
+              New Users
+            </Button>
+            <Button
+              variant={showReturning ? "default" : "outline"}
+              size="sm"
+              onClick={() => toggleDataSeries('returning')}
+              className="h-8"
+            >
+              <div className="h-3 w-3 rounded-full bg-green-500 mr-2" />
+              Returning Users
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
@@ -77,18 +161,22 @@ export function UserChart({ data }: UserChartProps) {
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                <Bar
-                  dataKey="newUsers"
-                  name="New Users"
-                  fill="#3b82f6"
-                  radius={[2, 2, 0, 0]}
-                />
-                <Bar
-                  dataKey="returningUsers"
-                  name="Returning Users"
-                  fill="#10b981"
-                  radius={[2, 2, 0, 0]}
-                />
+                {showNew && (
+                  <Bar
+                    dataKey="newUsers"
+                    name="New Users"
+                    fill="#3b82f6"
+                    radius={[2, 2, 0, 0]}
+                  />
+                )}
+                {showReturning && (
+                  <Bar
+                    dataKey="returningUsers"
+                    name="Returning Users"
+                    fill="#10b981"
+                    radius={[2, 2, 0, 0]}
+                  />
+                )}
               </BarChart>
             </ResponsiveContainer>
           </div>

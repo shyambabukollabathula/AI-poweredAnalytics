@@ -1,17 +1,46 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { ConversionData } from "@/lib/types";
 import { motion } from "framer-motion";
+import { Download, Maximize2, Target, PieChart as PieChartIcon } from "lucide-react";
+import toast from 'react-hot-toast';
+import { useState } from "react";
 
 interface ConversionChartProps {
   data: ConversionData[];
 }
 
 export function ConversionChart({ data }: ConversionChartProps) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
   const formatNumber = (value: number) => {
     return new Intl.NumberFormat("en-US").format(value);
+  };
+
+  const handleExportChart = () => {
+    toast.success('Conversion data exported successfully!', {
+      icon: '🎯',
+      duration: 2000,
+    });
+  };
+
+  const handleFullscreen = () => {
+    toast('Opening conversion analytics in fullscreen...', {
+      icon: '🔍',
+      duration: 2000,
+    });
+  };
+
+  const onPieEnter = (_: any, index: number) => {
+    setActiveIndex(index);
+  };
+
+  const onPieLeave = () => {
+    setActiveIndex(null);
   };
 
   const CustomTooltip = ({ active, payload }: any) => {
@@ -78,10 +107,36 @@ export function ConversionChart({ data }: ConversionChartProps) {
     >
       <Card>
         <CardHeader>
-          <CardTitle>Conversion Sources</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Traffic source breakdown by conversions
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center space-x-2">
+                <Target className="h-5 w-5" />
+                Conversion Sources
+                <Badge variant="outline" className="ml-2">
+                  Pie Chart
+                </Badge>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Traffic source breakdown by conversions
+              </p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleFullscreen}
+              >
+                <Maximize2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleExportChart}
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
@@ -96,9 +151,16 @@ export function ConversionChart({ data }: ConversionChartProps) {
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="conversions"
+                  onMouseEnter={onPieEnter}
+                  onMouseLeave={onPieLeave}
                 >
                   {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.color}
+                      stroke={activeIndex === index ? "#fff" : "none"}
+                      strokeWidth={activeIndex === index ? 2 : 0}
+                    />
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />

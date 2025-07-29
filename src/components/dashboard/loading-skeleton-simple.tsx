@@ -2,31 +2,6 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { motion } from "framer-motion";
-
-const shimmerVariants = {
-  initial: { x: "-100%" },
-  animate: { 
-    x: "100%",
-    transition: {
-      duration: 1.5,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }
-  }
-};
-
-const pulseVariants = {
-  initial: { opacity: 0.6 },
-  animate: { 
-    opacity: [0.6, 1, 0.6],
-    transition: {
-      duration: 2,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }
-  }
-};
 
 export function MetricCardSkeleton() {
   return (
@@ -97,5 +72,31 @@ export function TableSkeleton() {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+export function LoadingSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Metric Cards Skeleton */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <MetricCardSkeleton key={i} />
+        ))}
+      </div>
+
+      {/* Charts Skeleton */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <div className="col-span-4">
+          <ChartSkeleton />
+        </div>
+        <div className="col-span-3">
+          <ChartSkeleton />
+        </div>
+      </div>
+
+      {/* Table Skeleton */}
+      <TableSkeleton />
+    </div>
   );
 }

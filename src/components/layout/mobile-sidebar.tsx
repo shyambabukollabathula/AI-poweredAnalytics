@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,45 +15,41 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NavigationPage } from "@/components/navigation/navigation-handler";
-import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from "framer-motion";
 
 interface MobileSidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  currentPage?: NavigationPage;
-  onPageChange?: (page: NavigationPage) => void;
 }
 
 const navigation = [
   {
     name: "Overview",
-    page: "overview" as NavigationPage,
+    href: "/",
     icon: Home,
     badge: null,
   },
   {
     name: "Analytics",
-    page: "analytics" as NavigationPage,
+    href: "/analytics",
     icon: BarChart3,
     badge: "New",
   },
   {
     name: "Campaigns",
-    page: "campaigns" as NavigationPage,
+    href: "/campaigns",
     icon: Target,
     badge: null,
   },
   {
     name: "Audience",
-    page: "audience" as NavigationPage,
+    href: "/audience",
     icon: Users,
     badge: null,
   },
   {
     name: "Performance",
-    page: "performance" as NavigationPage,
+    href: "/performance",
     icon: TrendingUp,
     badge: null,
   },
@@ -61,21 +58,22 @@ const navigation = [
 const secondaryNavigation = [
   {
     name: "Settings",
-    page: "settings" as NavigationPage,
+    href: "/settings",
     icon: Settings,
   },
   {
     name: "Help",
-    page: "help" as NavigationPage,
+    href: "/help",
     icon: HelpCircle,
   },
 ];
 
-export function MobileSidebar({ isOpen, onClose, currentPage = 'overview', onPageChange }: MobileSidebarProps) {
-  const handleNavigation = (page: NavigationPage, name: string) => {
-    if (onPageChange) {
-      onPageChange(page);
-    }
+export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleNavigation = (href: string) => {
+    router.push(href);
     onClose();
   };
 
@@ -147,13 +145,13 @@ export function MobileSidebar({ isOpen, onClose, currentPage = 'overview', onPag
               <div className="space-y-1">
                 {navigation.map((item) => {
                   const Icon = item.icon;
-                  const isActive = currentPage === item.page;
+                  const isActive = pathname === item.href;
                   return (
                     <Button
                       key={item.name}
                       variant={isActive ? "secondary" : "ghost"}
                       className="w-full justify-start"
-                      onClick={() => handleNavigation(item.page, item.name)}
+                      onClick={() => handleNavigation(item.href)}
                     >
                       <Icon className="h-4 w-4 mr-3" />
                       <span>{item.name}</span>
@@ -174,13 +172,13 @@ export function MobileSidebar({ isOpen, onClose, currentPage = 'overview', onPag
               <div className="space-y-1">
                 {secondaryNavigation.map((item) => {
                   const Icon = item.icon;
-                  const isActive = currentPage === item.page;
+                  const isActive = pathname === item.href;
                   return (
                     <Button
                       key={item.name}
                       variant={isActive ? "secondary" : "ghost"}
                       className="w-full justify-start"
-                      onClick={() => handleNavigation(item.page, item.name)}
+                      onClick={() => handleNavigation(item.href)}
                     >
                       <Icon className="h-4 w-4 mr-3" />
                       <span>{item.name}</span>

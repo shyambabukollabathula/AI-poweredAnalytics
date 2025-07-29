@@ -3,7 +3,7 @@
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileSidebar } from "@/components/layout/mobile-sidebar";
-import { NavigationHandler } from "@/components/navigation/navigation-handler";
+
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { RevenueChart } from "@/components/charts/revenue-chart";
 import { UserChart } from "@/components/charts/user-chart";
@@ -13,7 +13,7 @@ import {
   MetricCardSkeleton, 
   ChartSkeleton, 
   TableSkeleton 
-} from "@/components/dashboard/loading-skeleton";
+} from "@/components/dashboard/loading-skeleton-simple";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { useResponsive } from "@/hooks/use-responsive";
 import { Button } from "@/components/ui/button";
@@ -30,8 +30,8 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { exportToCSV, exportToPDF, generateReportSummary } from "@/lib/export";
-import toast from 'react-hot-toast';
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 
 export default function Dashboard() {
   const { data, metrics, isLoading, isRefreshing, lastUpdated, refresh } = useDashboardData();
@@ -39,20 +39,18 @@ export default function Dashboard() {
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | null>(null);
   const [filteredData, setFilteredData] = useState(data);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Filter data based on date range
   const handleDateRangeChange = (range: { from: Date; to: Date } | null) => {
     setDateRange(range);
     if (range) {
       // In a real app, this would filter based on actual campaign dates
-      // For now, we'll just show a toast notification
-      toast.success(`Data filtered from ${range.from.toLocaleDateString()} to ${range.to.toLocaleDateString()}`);
       console.log("Filtering data for date range:", range);
-    } else {
-      toast("Date filter cleared - showing all data", {
-        icon: 'ℹ️',
-        duration: 2000,
-      });
     }
   };
 
@@ -60,38 +58,30 @@ export default function Dashboard() {
   const handleExportReport = () => {
     try {
       const summary = generateReportSummary(data.tableData);
-      toast.loading("Generating comprehensive report...", { duration: 1000 });
+
       
       setTimeout(() => {
         exportToPDF(data.tableData, `admybrand-insights-report-${new Date().toISOString().split('T')[0]}.pdf`);
       }, 1000);
     } catch (error) {
-      toast.error("Failed to generate report");
+
       console.error("Export error:", error);
     }
   };
 
   return (
-    <NavigationHandler>
-      {(currentPage, setCurrentPage) => (
-        <div className="min-h-screen bg-background">
-          <Header onMobileMenuToggle={() => setIsMobileSidebarOpen(true)} />
-          
-          <MobileSidebar
-            isOpen={isMobileSidebarOpen}
-            onClose={() => setIsMobileSidebarOpen(false)}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-          />
-          
-          <div className="flex">
-            <Sidebar 
-              className="hidden lg:flex" 
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-            />
+    <div className="min-h-screen bg-background">
+      <Header onMobileMenuToggle={() => setIsMobileSidebarOpen(true)} />
+      
+      <MobileSidebar
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
+      />
+      
+      <div className="flex">
+        <Sidebar className="hidden lg:flex" />
         
-        <main className="flex-1 p-4 md:p-6 space-y-6">
+        <main className="flex-1 p-4 md:p-6 space-y-6 overflow-x-auto min-h-screen">
           {/* Page Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -107,7 +97,7 @@ export default function Dashboard() {
             </div>
             
             <div className="flex flex-wrap items-center gap-2">
-              {!isMobile && (
+              {!isMobile && mounted && (
                 <Badge variant="outline" className="text-xs">
                   Last updated: {lastUpdated.toLocaleTimeString()}
                 </Badge>
@@ -193,10 +183,8 @@ export default function Dashboard() {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        toast.success('Quick stats refreshed!', {
-                          icon: '📊',
-                          duration: 2000,
-                        });
+                        // Refresh quick stats
+                        refresh();
                       }}
                     >
                       <RefreshCw className="h-4 w-4 mr-2" />
@@ -209,7 +197,7 @@ export default function Dashboard() {
                     <motion.div 
                       className="flex items-center space-x-2 p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
                       whileHover={{ scale: 1.02 }}
-                      onClick={() => toast('Opening CTR analytics...', { icon: 'ℹ️' })}
+                      onClick={() => console.log('Opening CTR analytics...')}
                     >
                       <div className="h-8 w-8 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
                         <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -222,7 +210,7 @@ export default function Dashboard() {
                     <motion.div 
                       className="flex items-center space-x-2 p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
                       whileHover={{ scale: 1.02 }}
-                      onClick={() => toast('Opening CPC analytics...', { icon: 'ℹ️' })}
+                      onClick={() => console.log('Opening CPC analytics...')}
                     >
                       <div className="h-8 w-8 rounded-lg bg-green-100 dark:bg-green-900 flex items-center justify-center">
                         <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
@@ -235,7 +223,7 @@ export default function Dashboard() {
                     <motion.div 
                       className="flex items-center space-x-2 p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
                       whileHover={{ scale: 1.02 }}
-                      onClick={() => toast('Opening conversion analytics...', { icon: 'ℹ️' })}
+                      onClick={() => console.log('Opening conversion analytics...')}
                     >
                       <div className="h-8 w-8 rounded-lg bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
                         <Target className="h-4 w-4 text-purple-600 dark:text-purple-400" />
@@ -248,7 +236,7 @@ export default function Dashboard() {
                     <motion.div 
                       className="flex items-center space-x-2 p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
                       whileHover={{ scale: 1.02 }}
-                      onClick={() => toast('Opening ROAS analytics...', { icon: 'ℹ️' })}
+                      onClick={() => console.log('Opening ROAS analytics...')}
                     >
                       <div className="h-8 w-8 rounded-lg bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
                         <DollarSign className="h-4 w-4 text-orange-600 dark:text-orange-400" />
@@ -264,9 +252,7 @@ export default function Dashboard() {
             </motion.div>
           )}
         </main>
-          </div>
-        </div>
-      )}
-    </NavigationHandler>
+      </div>
+    </div>
   );
 }

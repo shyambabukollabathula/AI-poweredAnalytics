@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { NotificationPanel } from "@/components/ui/notification-panel";
-import toast from 'react-hot-toast';
 
 interface HeaderProps {
   onMobileMenuToggle?: () => void;
@@ -31,14 +30,12 @@ interface HeaderProps {
 export function Header({ onMobileMenuToggle }: HeaderProps) {
   const { setTheme, theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      toast.success(`Searching for: "${searchQuery}"`, {
-        icon: '🔍',
-        duration: 2000,
-      });
+      console.log(`Searching for: "${searchQuery}"`);
       setSearchQuery("");
     }
   };
@@ -103,7 +100,11 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
           </Button>
 
           {/* Settings */}
-          <Button variant="ghost" size="icon">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => router.push('/settings')}
+          >
             <Settings className="h-5 w-5" />
           </Button>
 
@@ -115,15 +116,15 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/profile')}>
                 <User className="mr-2 h-4 w-4" />
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/settings')}>
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => console.log('Opening notifications...')}>
                 <Bell className="mr-2 h-4 w-4" />
                 Notifications
               </DropdownMenuItem>

@@ -184,16 +184,12 @@ export default function HelpPage() {
       <MobileSidebar
         isOpen={isMobileSidebarOpen}
         onClose={() => setIsMobileSidebarOpen(false)}
-        currentPage="help"
       />
       
       <div className="flex">
-        <Sidebar 
-          className="hidden lg:flex" 
-          currentPage="help"
-        />
+        <Sidebar className="hidden lg:flex" />
         
-        <main className="flex-1 p-4 md:p-6 space-y-6">
+        <main className="flex-1 p-4 md:p-6 space-y-6 overflow-x-auto min-h-screen">
           {/* Page Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}

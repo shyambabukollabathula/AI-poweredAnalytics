@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,43 +16,39 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NavigationPage } from "@/components/navigation/navigation-handler";
-import toast from 'react-hot-toast';
 
 interface SidebarProps {
   className?: string;
-  currentPage?: NavigationPage;
-  onPageChange?: (page: NavigationPage) => void;
 }
 
 const navigation = [
   {
     name: "Overview",
-    page: "overview" as NavigationPage,
+    href: "/",
     icon: Home,
     badge: null,
   },
   {
     name: "Analytics",
-    page: "analytics" as NavigationPage,
+    href: "/analytics",
     icon: BarChart3,
     badge: "New",
   },
   {
     name: "Campaigns",
-    page: "campaigns" as NavigationPage,
+    href: "/campaigns",
     icon: Target,
     badge: null,
   },
   {
     name: "Audience",
-    page: "audience" as NavigationPage,
+    href: "/audience",
     icon: Users,
     badge: null,
   },
   {
     name: "Performance",
-    page: "performance" as NavigationPage,
+    href: "/performance",
     icon: TrendingUp,
     badge: null,
   },
@@ -60,29 +57,29 @@ const navigation = [
 const secondaryNavigation = [
   {
     name: "Settings",
-    page: "settings" as NavigationPage,
+    href: "/settings",
     icon: Settings,
   },
   {
     name: "Help",
-    page: "help" as NavigationPage,
+    href: "/help",
     icon: HelpCircle,
   },
 ];
 
-export function Sidebar({ className, currentPage = 'overview', onPageChange }: SidebarProps) {
+export function Sidebar({ className }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const handleNavigation = (page: NavigationPage, name: string) => {
-    if (onPageChange) {
-      onPageChange(page);
-    }
+  const handleNavigation = (href: string) => {
+    router.push(href);
   };
 
   return (
     <div
       className={cn(
-        "flex flex-col border-r bg-card transition-all duration-300",
+        "flex flex-col border-r bg-card transition-all duration-300 sticky top-0 h-screen",
         collapsed ? "w-16" : "w-64",
         className
       )}
@@ -104,11 +101,11 @@ export function Sidebar({ className, currentPage = 'overview', onPageChange }: S
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-4">
+      <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
         <div className="space-y-1">
           {navigation.map((item) => {
             const Icon = item.icon;
-            const isActive = currentPage === item.page;
+            const isActive = pathname === item.href;
             return (
               <Button
                 key={item.name}
@@ -117,7 +114,7 @@ export function Sidebar({ className, currentPage = 'overview', onPageChange }: S
                   "w-full justify-start",
                   collapsed && "justify-center px-2"
                 )}
-                onClick={() => handleNavigation(item.page, item.name)}
+                onClick={() => handleNavigation(item.href)}
               >
                 <Icon className={cn("h-4 w-4", !collapsed && "mr-3")} />
                 {!collapsed && (
@@ -142,7 +139,7 @@ export function Sidebar({ className, currentPage = 'overview', onPageChange }: S
         <div className="space-y-1">
           {secondaryNavigation.map((item) => {
             const Icon = item.icon;
-            const isActive = currentPage === item.page;
+            const isActive = pathname === item.href;
             return (
               <Button
                 key={item.name}
@@ -151,7 +148,7 @@ export function Sidebar({ className, currentPage = 'overview', onPageChange }: S
                   "w-full justify-start",
                   collapsed && "justify-center px-2"
                 )}
-                onClick={() => handleNavigation(item.page, item.name)}
+                onClick={() => handleNavigation(item.href)}
               >
                 <Icon className={cn("h-4 w-4", !collapsed && "mr-3")} />
                 {!collapsed && <span>{item.name}</span>}

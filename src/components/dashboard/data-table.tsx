@@ -49,6 +49,7 @@ import {
 } from "lucide-react";
 import { TableData } from "@/lib/types";
 import { exportToCSV, exportToPDF, exportWeeklySummaryPDF } from "@/lib/export";
+import { ExportMenu } from "@/components/ui/export-menu";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
@@ -384,6 +385,10 @@ export function DataTable({ data }: DataTableProps) {
                 </p>
               </div>
               <div className="flex space-x-2">
+                <ExportMenu 
+                  data={data} 
+                  className="hover:bg-primary/10 hover:border-primary/50 transition-all duration-200"
+                />
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -420,24 +425,6 @@ export function DataTable({ data }: DataTableProps) {
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Export detailed report as PDF</p>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        exportWeeklySummaryPDF(data, "weekly_summary_report.pdf");
-                      }}
-                      className="hover:bg-primary/10 hover:border-primary/50 transition-all duration-200"
-                    >
-                      <FileText className="h-4 w-4 mr-2" />
-                      Weekly Summary
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Export weekly summary report as PDF</p>
                   </TooltipContent>
                 </Tooltip>
               </div>

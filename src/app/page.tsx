@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { exportToCSV, exportToPDF, generateReportSummary } from "@/lib/export";
+import { ExportMenu } from "@/components/ui/export-menu";
 
 import { useState, useEffect } from "react";
 

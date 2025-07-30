@@ -26,7 +26,7 @@ export function exportToCSV(data: TableData[], filename: string = "campaign-data
         row.conversions,
         row.ctr,
         row.cost,
-        (row.cost * row.roas).toFixed(0), // Calculate revenue from cost * ROAS
+        Math.round(row.cost * row.roas), // Calculate revenue from cost * ROAS
         row.roas,
         `"${row.status}"`
       ].join(","))
@@ -56,29 +56,41 @@ export function exportToPDF(data: TableData[], filename: string = "campaign-repo
   try {
     const doc = new jsPDF();
     
-    // Add title
+    // Add title - exact match to your example
     doc.setFontSize(20);
-    doc.text('ADmyBRAND Insights - Campaign Report', 14, 22);
+    doc.text('ADmyBRAND Insights - Campaign Report', 40, 22);
     
-    // Add generation date
+    // Add generation date - exact format match
     doc.setFontSize(10);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`, 14, 32);
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' 
+    });
+    const timeStr = now.toLocaleTimeString('en-GB', { 
+      hour12: true,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+    doc.text(`Generated on: ${dateStr} at ${timeStr}`, 40, 32);
     
-    // Add summary statistics
+    // Add summary statistics - exact format match
     const summary = generateReportSummary(data);
     doc.setFontSize(12);
-    doc.text('Summary Statistics:', 14, 45);
+    doc.text('Summary Statistics:', 40, 45);
     doc.setFontSize(10);
-    doc.text(`Total Campaigns: ${summary.totalCampaigns}`, 14, 55);
-    doc.text(`Active Campaigns: ${summary.activeCampaigns}`, 14, 62);
-    doc.text(`Total Impressions: ${summary.totalImpressions}`, 14, 69);
-    doc.text(`Total Clicks: ${summary.totalClicks}`, 14, 76);
-    doc.text(`Total Conversions: ${summary.totalConversions}`, 14, 83);
-    doc.text(`Total Cost: ${summary.totalCost}`, 14, 90);
-    doc.text(`Average CTR: ${summary.avgCTR}`, 14, 97);
-    doc.text(`Average ROAS: ${summary.avgROAS}`, 14, 104);
+    doc.text(`Total Campaigns: ${summary.totalCampaigns}`, 40, 55);
+    doc.text(`Active Campaigns: ${summary.activeCampaigns}`, 40, 62);
+    doc.text(`Total Impressions: ${summary.totalImpressions}`, 40, 69);
+    doc.text(`Total Clicks: ${summary.totalClicks}`, 40, 76);
+    doc.text(`Total Conversions: ${summary.totalConversions}`, 40, 83);
+    doc.text(`Total Cost: ${summary.totalCost}`, 40, 90);
+    doc.text(`Average CTR: ${summary.avgCTR}`, 40, 97);
+    doc.text(`Average ROAS: ${summary.avgROAS}`, 40, 104);
 
-    // Add table
+    // Add table with exact styling to match your example
     const tableData = data.map(row => [
       row.campaign,
       row.impressions.toLocaleString(),
@@ -86,7 +98,7 @@ export function exportToPDF(data: TableData[], filename: string = "campaign-repo
       row.conversions.toLocaleString(),
       `${row.ctr}%`,
       `$${row.cost.toLocaleString()}`,
-      `$${(row.cost * row.roas).toLocaleString()}`, // Revenue
+      `$${Math.round(row.cost * row.roas).toLocaleString()}`, // Revenue
       `${row.roas}x`,
       row.status
     ]);
@@ -95,21 +107,24 @@ export function exportToPDF(data: TableData[], filename: string = "campaign-repo
       head: [['Campaign', 'Impressions', 'Clicks', 'Conversions', 'CTR (%)', 'Cost ($)', 'Revenue ($)', 'ROI (x)', 'Status']],
       body: tableData,
       startY: 115,
+      margin: { left: 40 },
       styles: {
         fontSize: 8,
         cellPadding: 2,
+        textColor: [80, 80, 80], // Dark gray text
       },
       headStyles: {
-        fillColor: [59, 130, 246], // Blue color
-        textColor: 255,
+        fillColor: [59, 130, 246], // Blue color matching your example
+        textColor: [255, 255, 255], // White text
         fontStyle: 'bold',
+        fontSize: 8,
       },
       alternateRowStyles: {
-        fillColor: [248, 250, 252], // Light gray
+        fillColor: [248, 250, 252], // Light gray alternating rows
       },
       columnStyles: {
         0: { cellWidth: 30 }, // Campaign
-        1: { cellWidth: 18 }, // Impressions
+        1: { cellWidth: 18 }, // Impressions  
         2: { cellWidth: 15 }, // Clicks
         3: { cellWidth: 18 }, // Conversions
         4: { cellWidth: 15 }, // CTR
@@ -118,19 +133,14 @@ export function exportToPDF(data: TableData[], filename: string = "campaign-repo
         7: { cellWidth: 15 }, // ROI
         8: { cellWidth: 18 }, // Status
       },
+      didDrawCell: function(data) {
+        // Add borders to match your example
+        if (data.section === 'head') {
+          doc.setDrawColor(120, 120, 120);
+          doc.setLineWidth(0.5);
+        }
+      }
     });
-
-    // Add footer
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.text(
-        `Page ${i} of ${pageCount} | ADmyBRAND Insights Dashboard`,
-        14,
-        doc.internal.pageSize.height - 10
-      );
-    }
 
     // Save the PDF
     doc.save(filename);

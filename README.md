@@ -201,5 +201,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Tailwind CSS** for the utility-first approach
 - **Recharts** for the responsive chart components
 
----
-
